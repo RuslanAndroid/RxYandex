@@ -1,0 +1,25 @@
+<resources>
+    <string name="app_name">ЯПереводчик</string>
+    <string name="russian">Русский</string>
+    <string name="english">Английский</string>
+    <string name="speek">Говорите</string>
+    <string name="error_record">Ошибка записи</string>
+    <string name="error_sound">Ошибка возпроизведения</string>
+    <string name="error_connect">Отсутствует подключение к сети</string>
+    <string name="error_connect2">Ошибка соединения</string>
+    <string name="error_connect3">Сервер недоступен</string>
+    <string name="language_choose">Выберите язык</string>
+    <string name="exit">Выход</string>
+    <string name="exit_title">Выйти из приложения?</string>
+    <string name="cancel">Отмена</string>
+    <string name="history">История</string>
+    <string name="favorite">Избранное</string>
+    <string name="translator">Переводчик</string>
+    <string name="defis">-</string>
+    <string name="search">Поиск</string>
+    <string name="nothing_to_show">Здесь ничего нет :(</string>
+    <string name="clear_fav_history">Избранная история очищенна</string>
+    <string name="clear_history">История очищенна</string>
+    <string name="send_text">Отправить</string>
+
+</resources>

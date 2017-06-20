@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                android:orientation="vertical"
+                android:background="@color/white"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+    <android.support.v7.widget.Toolbar
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        app:contentInsetLeft="0dp"
+        app:contentInsetStart="0dp"
+        android:id="@+id/toolbar"
+        android:background="@color/colorPrimary">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/language_from"
+                android:layout_toLeftOf="@+id/arrows"
+                android:layout_centerVertical="true"
+                android:text="@string/russian"
+                style="@style/blackText"
+                />
+
+            <ImageView
+                android:layout_width="50dp"
+                android:layout_height="20dp"
+                android:src="@drawable/arrow_right"
+                android:id="@+id/arrows"
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/language_to"
+                style="@style/blackText"
+                android:layout_centerVertical="true"
+                android:layout_toRightOf="@+id/arrows"
+                android:text="@string/english"/>
+
+        </RelativeLayout>
+    </android.support.v7.widget.Toolbar>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="150dp"
+        android:layout_below="@+id/toolbar"
+        android:id="@+id/plate_rel"
+        android:background="@drawable/borders_grey"
+        android:clickable="true"
+        android:padding="5dp"
+        android:layout_margin="16dp">
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/res_edt"
+            style="@style/blackText"
+            android:inputType="text"
+            android:imeOptions="actionDone"
+            android:gravity="start"
+            android:layout_toLeftOf="@+id/mic"
+            android:layout_toStartOf="@+id/mic"
+            android:layout_above="@+id/clear"/>
+        <ImageView
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_alignParentBottom="true"
+            app:srcCompat="@drawable/close_icon"
+            android:id="@+id/clear"/>
+        <ImageView
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:padding="5dp"
+            android:id="@+id/mic"
+            app:srcCompat="@drawable/micro_icon"
+            android:layout_alignParentRight="true"/>
+        <ImageView
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:padding="5dp"
+
+            android:id="@+id/din"
+            app:srcCompat="@drawable/volume_icon"
+            android:layout_marginTop="20dp"
+            android:layout_below="@+id/mic"
+            android:layout_alignParentRight="true"/>
+
+    </RelativeLayout>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/plate_rel"
+
+        android:visibility="gone"
+        android:id="@+id/rel_result"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:layout_marginTop="10dp">
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+
+            android:layout_marginTop="5dp"
+            android:id="@+id/translate_result"
+            style="@style/blackText"
+            android:layout_toLeftOf="@+id/din_result"
+            android:layout_toStartOf="@+id/din_result"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:layout_below="@+id/translate_result"
+            android:id="@+id/translate_custom"
+            style="@style/blackText"
+            />
+        <ImageView
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:padding="5dp"
+            android:id="@+id/din_result"
+            app:srcCompat="@drawable/volume_icon"
+            android:layout_alignParentRight="true"/>
+
+    </RelativeLayout>
+
+
+    <android.support.v7.widget.RecyclerView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/dict_list"
+        android:layout_below="@+id/rel_result">
+
+    </android.support.v7.widget.RecyclerView>
+
+</RelativeLayout>
