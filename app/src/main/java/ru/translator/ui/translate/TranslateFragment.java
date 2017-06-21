@@ -73,7 +73,6 @@ public class TranslateFragment extends Fragment implements  TranslateFragmentVie
         View view = inflater.inflate(R.layout.fragment_translate, container, false);
 
         ButterKnife.bind(this, view);
-        mPresenter = new TranslateFragmentPresenterImpl();
         mPresenter.setView(this);
 
         mManager = getActivity().getSupportFragmentManager();

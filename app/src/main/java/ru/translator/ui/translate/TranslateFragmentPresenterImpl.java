@@ -2,29 +2,27 @@ package ru.translator.ui.translate;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
-import android.os.Build;
-import android.support.annotation.RequiresApi;
+
 import android.support.v4.app.ActivityCompat;
 import android.text.TextUtils;
+
 import android.util.Log;
 import android.widget.Toast;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
-import java.util.stream.Collectors;
+
 
 import javax.inject.Inject;
 
 import ru.translator.App;
 import ru.translator.R;
-import ru.translator.models.Mean;
-import ru.translator.models.Syn;
+
 import ru.translator.models.Tr;
 import ru.translator.repository.DomainService;
 import ru.translator.util.NetworkError;
 import ru.translator.util.SpeechNRecognicionListener;
-import ru.translator.util.StringUtils;
+
 import ru.translator.util.Toaster;
 import ru.yandex.speechkit.Error;
 import ru.yandex.speechkit.Recognition;
@@ -33,8 +31,9 @@ import ru.yandex.speechkit.Vocalizer;
 import rx.Observable;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Func1;
+
 import rx.schedulers.Schedulers;
+import rx.subscriptions.CompositeSubscription;
 
 
 import static ru.translator.App.getContext;
@@ -48,7 +47,7 @@ public class TranslateFragmentPresenterImpl extends SpeechNRecognicionListener i
     private TranslateFragmentView mFragmentView;
     private Recognizer recognizer;
     private Vocalizer vocalizer;
-
+    private CompositeSubscription mCompositeSubscription;
     @Inject
     public DomainService service;
 
@@ -63,8 +62,20 @@ public class TranslateFragmentPresenterImpl extends SpeechNRecognicionListener i
 
     public TranslateFragmentPresenterImpl() {
         App.getDeps().inject(this);
+        mCompositeSubscription = new CompositeSubscription();
         recordEnabled   = true;
         vocalEnabled    = true;
+    }
+
+    @Override
+    public void onPause() {
+        if(mCompositeSubscription != null && !mCompositeSubscription.isUnsubscribed()){
+            mCompositeSubscription.unsubscribe();
+            mCompositeSubscription = new CompositeSubscription();
+        }
+
+        resetRecognizer();
+        resetVocalizer();
     }
 
     @Override
@@ -91,7 +102,8 @@ public class TranslateFragmentPresenterImpl extends SpeechNRecognicionListener i
     //новый объект в бд
     @Override
     public void addItemToDB(String txtFrom,String txtTo){
-        service.addItemToDB(txtFrom,txtTo,fromLang,toLang,fromLangText,toLangText);
+        Subscription subscription =  service.addItemToDB(txtFrom,txtTo,fromLang,toLang,fromLangText,toLangText);
+        mCompositeSubscription.add(subscription);
     }
 
     //запуск записи
@@ -138,18 +150,25 @@ public class TranslateFragmentPresenterImpl extends SpeechNRecognicionListener i
             vocalizer = null;
         }
     }
-    @Override
-    public void onPause(){
-        resetRecognizer();
-        resetVocalizer();
-    }
+
     @Override
     public void doTranslate(String textToTranslate){
-        getMergedTranslate(textToTranslate)
+
+        Subscription subscription = getMergedTranslate(textToTranslate)
                 .onErrorReturn(throwable -> {
                    Toaster.show(new NetworkError(throwable).getAppErrorMessage());
                     return null;
-                }).subscribe();
+                }).subscribe(o -> Log.e("doTranslateONNext",
+                        textToTranslate ));
+        Log.e("doTranslate",
+                textToTranslate + "\n"
+                +subscription.isUnsubscribed());
+
+        mCompositeSubscription.add(subscription);
+
+        Log.e("doTranslateSubs",
+                mCompositeSubscription.isUnsubscribed() + "\n"
+                        +subscription.isUnsubscribed());
     }
 
     private Observable<Object> getMergedTranslate(String textToTranslate) {
@@ -170,6 +189,7 @@ public class TranslateFragmentPresenterImpl extends SpeechNRecognicionListener i
                         mSubscriptionForSave.unsubscribe();
                     }
                     mSubscriptionForSave = saveTimer(textToTranslate, s).subscribe();
+                    mCompositeSubscription.add(mSubscriptionForSave);
                 });
     }
 
@@ -179,17 +199,6 @@ public class TranslateFragmentPresenterImpl extends SpeechNRecognicionListener i
         return service.getMergedLongTranslate(textToTranslate,languageFrom,languageTo)
                 .observeOn(AndroidSchedulers.mainThread(), true)
                 .subscribeOn(Schedulers.io())
-                .filter(defs -> defs.size()>0)
-                .map(defs -> defs.get(0).tr)
-                .flatMapIterable(list -> list)
-                .filter(tr -> tr.syn != null && tr.syn.size() != 0 && tr.mean != null && tr.mean.size() != 0)
-                .map(tr -> {
-                        tr.synString= join(", ",  tr.syn);
-                        tr.meanString=join(", ", tr.mean);
-                    return tr;
-                })
-                .filter(tr -> !tr.synString.isEmpty() && !tr.meanString.isEmpty())
-                .toList()
                 .doOnNext(def -> mFragmentView.onFullTranslate(def));
     }
 
@@ -232,12 +241,5 @@ public class TranslateFragmentPresenterImpl extends SpeechNRecognicionListener i
         mFragmentView.onError(R.string.error_sound);
         resetVocalizer();
     }
-    public String join(String separator, List list){
-        String out = "";
-        for (Object syn : list){
-            out += syn + separator;
-        }
-        out = out.substring(0, out.length() - separator.length());
-        return out;
-    }
+
 }

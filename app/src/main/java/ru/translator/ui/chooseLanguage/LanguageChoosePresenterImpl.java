@@ -12,6 +12,7 @@ import ru.translator.models.Lang;
 import ru.translator.repository.DomainService;
 import ru.translator.util.NetworkError;
 import rx.Observable;
+import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 
 import rx.schedulers.Schedulers;
@@ -23,8 +24,9 @@ import static ru.translator.App.getContext;
  */
 
 public class LanguageChoosePresenterImpl implements LanguageChoosePresenter {
-    String language;
-    boolean destinationLanguage;
+    private String language;
+    private boolean destinationLanguage;
+    private Subscription subscription;
     @Inject
     DomainService service;
     private  List<Lang> languages;
@@ -42,8 +44,15 @@ public class LanguageChoosePresenterImpl implements LanguageChoosePresenter {
     }
 
     @Override
+    public void onPause() {
+        if(subscription != null && !subscription.isUnsubscribed()){
+            subscription.unsubscribe();
+        }
+    }
+
+    @Override
     public void setView(LanguageChooseView languageChooseView){
-        getMergedLangs()
+        subscription = getMergedLangs()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread(), true)
                 .doOnCompleted(() -> {})
@@ -72,6 +81,7 @@ public class LanguageChoosePresenterImpl implements LanguageChoosePresenter {
                         },
                         throwable -> Toast.makeText(getContext(), new NetworkError(throwable).getAppErrorMessage(), Toast.LENGTH_SHORT).show()
                 );
+
     }
 
     private Observable<List<Lang>> getLangs(){

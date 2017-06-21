@@ -10,5 +10,6 @@ import rx.Observable;
 public interface LanguageChoosePresenter {
     void setView(LanguageChooseView splashView);
     void setInfo(String language, boolean destinationLanguage);
+    void onPause();
    // Observable<Object> getMergedLangs();
 }

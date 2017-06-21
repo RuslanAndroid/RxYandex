@@ -19,7 +19,6 @@ import butterknife.ButterKnife;
 import ru.translator.App;
 import ru.translator.R;
 import ru.translator.adapters.PagerAdapter;
-import ru.translator.repository.DataBase;
 import ru.translator.repository.DomainService;
 import ru.translator.util.OnTabSelectedListener;
 

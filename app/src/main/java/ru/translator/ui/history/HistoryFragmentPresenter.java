@@ -9,4 +9,5 @@ public interface HistoryFragmentPresenter {
     void getData();
     void enableDataChangeListener();
     void addFavoriteItem(int id, boolean fav);
+    void onPause();
 }

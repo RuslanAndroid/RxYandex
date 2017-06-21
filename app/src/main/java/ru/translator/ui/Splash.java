@@ -1,10 +1,9 @@
-package ru.translator.ui.splash;
+package ru.translator.ui;
 
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
-import ru.translator.ui.MainActivity;
 import ru.translator.R;
 
 //эта активность вызывается при запуске приложения

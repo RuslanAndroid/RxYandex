@@ -38,6 +38,12 @@ public class LanguageChooseFragment extends Fragment implements LanguageChooseVi
         App.getDeps().inject(this);
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+        mPresenter.onPause();
+    }
+
     public static LanguageChooseFragment getInstance(boolean dest, String language){
         LanguageChooseFragment languageChooseFragment = new LanguageChooseFragment();
         Bundle bundle = new Bundle();

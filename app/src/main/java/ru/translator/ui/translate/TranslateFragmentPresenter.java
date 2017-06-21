@@ -1,6 +1,5 @@
 package ru.translator.ui.translate;
 
-import rx.Observable;
 
 /**
  * Created by Ruslan on 08.06.2017.

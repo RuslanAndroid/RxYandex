@@ -15,7 +15,6 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class NetworkRepository {
 
     private Context mContext;
-    private static final String CLASSNAME = NetworkRepository.class.getCanonicalName();
     private static final String ENDPOINT = ru.translator.network.Request.BASE_URL;
 
     public NetworkRepository(Context context){

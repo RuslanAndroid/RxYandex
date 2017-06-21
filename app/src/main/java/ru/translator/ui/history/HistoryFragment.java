@@ -55,6 +55,12 @@ public class HistoryFragment extends Fragment implements HistoryFragmentView{
         App.getDeps().inject(this);
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+        presenter.onPause();
+    }
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {

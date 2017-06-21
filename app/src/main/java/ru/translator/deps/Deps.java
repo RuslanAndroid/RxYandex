@@ -8,7 +8,6 @@ import dagger.Component;
 import ru.translator.ui.MainActivity;
 import ru.translator.ui.chooseLanguage.LanguageChooseFragment;
 import ru.translator.ui.chooseLanguage.LanguageChoosePresenterImpl;
-import ru.translator.ui.splash.SplashPresenterImpl;
 import ru.translator.ui.AllHistoryFragment;
 import ru.translator.ui.history.HistoryFragment;
 import ru.translator.ui.translate.TranslateFragment;
@@ -23,7 +22,6 @@ import ru.translator.repository.NetworkRepository;
 @Component(modules = {NetworkRepository.class,PresenterModule.class})
 public interface Deps {
     void inject(TranslateFragmentPresenterImpl translateFragmentPresenterImpl);
-    void inject(SplashPresenterImpl splashPresenterImpl);
     void inject(MainActivity mainActivity);
     void inject(AllHistoryFragment allHistoryFragment);
     void inject(HistoryFragmentPresenterImpl historyFragmentPresenterImpl);

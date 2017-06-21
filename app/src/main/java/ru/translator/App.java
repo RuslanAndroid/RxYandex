@@ -5,7 +5,6 @@ import android.content.Context;
 
 import ru.translator.deps.DaggerDeps;
 import ru.translator.deps.Deps;
-import ru.translator.repository.DataBase;
 import ru.translator.repository.NetworkRepository;
 import ru.yandex.speechkit.SpeechKit;
 

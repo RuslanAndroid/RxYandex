@@ -15,11 +15,10 @@ import javax.inject.Singleton;
 
 import ru.translator.models.Def;
 import ru.translator.models.Lang;
+import ru.translator.models.Tr;
 import rx.Observable;
 
 public class DiskRepository {
-
-    private static final String CLASSNAME = DiskRepository.class.getCanonicalName();
 
     private Gson mGson = new Gson();
     private final SharedPreferences sharedPreferences;
@@ -43,19 +42,19 @@ public class DiskRepository {
         sharedPreferences.edit().putString(KEY_DIRS,mGson.toJson(list)).apply();
     }
 
-    public void saveLongAnswer(List<Def> list , String key) {
+    public void saveLongAnswer(List<Tr> list , String key) {
         sharedPreferences.edit().putString(KEY_LONG + key,mGson.toJson(list)).apply();
     }
 
     public Observable<String> getShortTranslate(String key) {
         return Observable.fromCallable(() -> sharedPreferences.getString(KEY_SHORT + key, ""));
     }
-    public Observable<List<Def>> getLongAnswer(String key) {
+    public Observable<List<Tr>> getLongAnswer(String key) {
         return Observable.fromCallable(() -> {
             String sharedPreferencesString = sharedPreferences.getString(KEY_LONG + key, "");
-            List<Def> list = null;
+            List<Tr> list = null;
             if (!TextUtils.isEmpty(sharedPreferencesString)) {
-                Type type = new TypeToken<List<Def>>(){}.getType();
+                Type type = new TypeToken<List<Tr>>(){}.getType();
                 list= mGson.fromJson(sharedPreferencesString, type);
             }
             return list;

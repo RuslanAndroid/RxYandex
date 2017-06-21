@@ -1,7 +1,6 @@
 package ru.translator.ui.history;
 
 
-import java.util.List;
 
 import javax.inject.Inject;
 
@@ -12,9 +11,10 @@ import ru.translator.interfaces.HistoryDataChangeListener;
 
 import ru.translator.repository.DomainService;
 import ru.translator.util.items.DataBean;
+import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Func1;
 import rx.schedulers.Schedulers;
+import rx.subscriptions.CompositeSubscription;
 
 
 /**
@@ -26,9 +26,11 @@ public class HistoryFragmentPresenterImpl implements HistoryFragmentPresenter{
     public  DomainService mDomainService;
     private HistoryFragmentView mFragmentView;
     private int fragmentType;
-
+    private Subscription mSubscription;
+    private CompositeSubscription mCompositeSubscription;
     public HistoryFragmentPresenterImpl(){
         App.getDeps().inject(this);
+        mCompositeSubscription = new CompositeSubscription();
     }
 
     @Override
@@ -40,16 +42,17 @@ public class HistoryFragmentPresenterImpl implements HistoryFragmentPresenter{
     @Override
     public void getData(){
         if(fragmentType== PagerAdapter.TYPE_HISTORY){
-            mDomainService.getAllDB().subscribeOn(Schedulers.computation())
+            mSubscription = mDomainService.getAllDB().subscribeOn(Schedulers.computation())
                     .observeOn(AndroidSchedulers.mainThread(), true)
                     .filter(dataBeen -> dataBeen != null)
                     .subscribe(dataBeen -> mFragmentView.onLoadComplete(dataBeen));
         }else{
-            mDomainService.getAllFavoriteDB().subscribeOn(Schedulers.computation())
+            mSubscription = mDomainService.getAllFavoriteDB().subscribeOn(Schedulers.computation())
                      .observeOn(AndroidSchedulers.mainThread(), true)
                     .filter(dataBeen -> dataBeen != null)
                     .subscribe(dataBeen -> mFragmentView.onLoadComplete(dataBeen));
         }
+        mCompositeSubscription.add(mSubscription);
     }
 
     @Override
@@ -101,7 +104,15 @@ public class HistoryFragmentPresenterImpl implements HistoryFragmentPresenter{
 
     @Override
     public void addFavoriteItem(int id, boolean fav) {
-        mDomainService.addFavoriteItemToDB(id,fav);
+        mCompositeSubscription.add( mDomainService.addFavoriteItemToDB(id,fav) );
+    }
+
+    @Override
+    public void onPause() {
+        if(mCompositeSubscription != null && !mCompositeSubscription.isUnsubscribed()){
+            mCompositeSubscription.unsubscribe();
+            mCompositeSubscription = new CompositeSubscription();
+        }
     }
 
 }

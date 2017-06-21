@@ -12,11 +12,12 @@ import java.util.List;
 
 import ru.translator.interfaces.FavDataChangeListener;
 import ru.translator.interfaces.HistoryDataChangeListener;
+import ru.translator.models.Tr;
 import ru.translator.network.Request;
-import ru.translator.models.Def;
 import ru.translator.models.Lang;
 import ru.translator.util.items.DataBean;
 import rx.Observable;
+import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
@@ -45,7 +46,7 @@ public class DomainService {
         );
     }
 
-    public Observable<List<Def>> getMergedLongTranslate(String textToTranslate, String languageFrom, String languageTo) {
+    public Observable<List<Tr>> getMergedLongTranslate(String textToTranslate, String languageFrom, String languageTo) {
         return Observable.mergeDelayError(
                 mDiskRepository.getLongAnswer(textToTranslate+languageFrom+languageTo).subscribeOn(Schedulers.io()),
                 getTranslateFull(textToTranslate,languageFrom,languageTo)
@@ -106,7 +107,7 @@ public class DomainService {
                 .doOnNext(s -> mDiskRepository.saveShortAnswer(s, textToTranslate + languageFrom + languageTo));
     }
 
-    private Observable<List<Def>> getTranslateFull(String textToTranslate, String languageFrom, String languageTo){
+    private Observable<List<Tr>> getTranslateFull(String textToTranslate, String languageFrom, String languageTo){
         return mAPI.translateDict(
                 Request.DICTINARY_API_KEY,
                 textToTranslate,
@@ -114,6 +115,16 @@ public class DomainService {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread(), true)
                 .map(response -> response.def)
+                .filter(defs -> defs.size()>0)
+                .map(defs -> defs.get(0).tr)
+                .flatMapIterable(list -> list)
+                .filter(tr -> tr.syn != null && tr.syn.size() != 0 && tr.mean != null && tr.mean.size() != 0)
+                .map(tr -> {
+                    tr.synString= join(", ",  tr.syn);
+                    tr.meanString=join(", ", tr.mean);
+                    return tr;
+                })
+                .toList()
                 .doOnNext(defs -> mDiskRepository.saveLongAnswer(defs,textToTranslate+languageFrom+languageTo));
     }
 
@@ -134,15 +145,15 @@ public class DomainService {
         mDataBase.close();
     }
 
-    public void addItemToDB(String txtFrom,String txtTo,String langFrom,String langTo,String langFromText,String langToText){
-        mDataBase.addRec(txtFrom,txtTo,langFrom,langTo,langFromText,langToText)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread(), true)
-                .subscribe(dataBean -> mHistoryDataChangeListener.onInsert(dataBean));
+    public Subscription addItemToDB(String txtFrom, String txtTo, String langFrom, String langTo, String langFromText, String langToText){
+        return    mDataBase.addRec(txtFrom,txtTo,langFrom,langTo,langFromText,langToText)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread(), true)
+                    .subscribe(dataBean -> mHistoryDataChangeListener.onInsert(dataBean));
     }
 
-    public void addFavoriteItemToDB(int rowId,boolean newValue){
-        mDataBase.addFavRec(rowId,newValue)
+    public Subscription addFavoriteItemToDB(int rowId,boolean newValue){
+       return mDataBase.addFavRec(rowId,newValue)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread(), true)
                 .subscribe(id -> {
@@ -184,5 +195,14 @@ public class DomainService {
                     mFavDataChangeListener.onRemoveData();
                     mHistoryDataChangeListener.onRemoveFavData();
                 });
+    }
+
+    private String join(String separator, List list){
+        String out = "";
+        for (Object syn : list){
+            out += syn + separator;
+        }
+        out = out.substring(0, out.length() - separator.length());
+        return out;
     }
 }
